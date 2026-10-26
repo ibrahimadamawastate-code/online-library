@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}Categories — Online Library{% endblock %}
+{% block description %}Browse Online Library by education, science, technology, literature, history, religion, computer science, and library and information science.{% endblock %}
+{% block content %}
+<section class="mast">
+  <div class="container">
+    <p class="eyebrow">Eight disciplines</p>
+    <h1>Book categories</h1>
+    <p class="lede">Choose a shelf. Each category gathers the titles a student or independent reader is most likely to need first.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container category-grid large">
+    {% for item in categories %}
+    <a class="category-card" href="{{ url_for('category', slug=item.slug) }}">
+      {{ icon(item.slug) }}
+      <h2>{{ item.name }}</h2>
+      <p>{{ item.blurb }}</p>
+      <span>{{ counts[item.name] }} titles</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}{% if book %}Edit {{ book.title }}{% else %}New title{% endif %} — Desk{% endblock %}
+{% block content %}
+<section class="mast">
+  <div class="container narrow">
+    <p class="eyebrow"><a href="{{ url_for('admin') }}">Desk</a></p>
+    <h1>{% if book %}Edit title{% else %}Add a title{% endif %}</h1>
+  </div>
+</section>
+<section class="section">
+  <div class="container narrow">
+    <form class="form-card" method="post">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <label for="title">Title</label>
+      <input id="title" name="title" required value="{{ book.title if book else '' }}">
+      <label for="short_title">Short shelf title</label>
+      <input id="short_title" name="short_title" value="{{ book.short_title if book else '' }}">
+      <label for="author">Author</label>
+      <input id="author" name="author" required value="{{ book.author if book else '' }}">
+      <label for="cover_author">Cover author line</label>
+      <input id="cover_author" name="cover_author" value="{{ book.cover_author if book else '' }}">
+      <div class="split-fields">
+        <div>
+          <label for="year">Year</label>
+          <input id="year" name="year" type="number" value="{{ book.year if book else '' }}">
+        </div>
+        <div>
+          <label for="pages">Pages</label>
+          <input id="pages" name="pages" type="number" value="{{ book.pages if book else '' }}">
+        </div>
+      </div>
+      <label for="category">Category</label>
+      <select id="category" name="category" required>
+        {% for item in categories %}
+        <option {% if book and book.category == item.name %}selected{% endif %}>{{ item.name }}</option>
+        {% endfor %}
+      </select>
+      <label for="call_number">Call number</label>
+      <input id="call_number" name="call_number" value="{{ book.call_number if book else '' }}">
+      <label for="publisher">Publisher</label>
+      <input id="publisher" name="publisher" value="{{ book.publisher if book else 'Online Library Press' }}">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" required>{{ book.description if book else '' }}</textarea>
+      <label for="source_note">Source note</label>
+      <textarea id="source_note" name="source_note">{{ book.source_note if book else '' }}</textarea>
+      <div class="split-fields">
+        <div>
+          <label for="palette">Cover colour</label>
+          <select id="palette" name="palette">
+            {% for name in palettes %}
+            <option>{{ name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label for="cover_layout">Cover layout</label>
+          <select id="cover_layout" name="cover_layout">
+            {% for layout in ['classic', 'band', 'frame', 'split'] %}
+            <option {% if book and book.cover_layout == layout %}selected{% endif %}>{{ layout }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" name="featured" {% if book and book.featured %}checked{% endif %}> Featured</label>
+      <label class="check"><input type="checkbox" name="popular" {% if book and book.popular %}checked{% endif %}> Popular</label>
+      <label class="check"><input type="checkbox" name="downloadable" {% if not book or book.downloadable %}checked{% endif %}> Legally downloadable</label>
+      <h2>Add a chapter</h2>
+      <label for="chapter_title">Chapter title</label>
+      <input id="chapter_title" name="chapter_title">
+      <label for="chapter_content">Chapter text</label>
+      <textarea id="chapter_content" name="chapter_content" placeholder="Separate paragraphs with a blank line."></textarea>
+      <button class="btn btn-primary" type="submit">{% if book %}Save record{% else %}Add title{% endif %}</button>
+    </form>
+    {% if chapters %}
+    <h2>Chapters on the shelf</h2>
+    <ul class="chapter-admin">
+      {% for chapter in chapters %}
+      <li>
+        <span>{{ chapter.position }}. {{ chapter.title }}</span>
+        <form method="post" action="{{ url_for('admin_delete_chapter', chapter_id=chapter.id) }}" onsubmit="return confirm('Remove this chapter?')">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <button type="submit">Delete</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

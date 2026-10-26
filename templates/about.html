@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}About Us — Online Library{% endblock %}
+{% block description %}Online Library is an independent digital reading room for students and lifelong readers, with public-domain literature and open educational texts.{% endblock %}
+{% block content %}
+<section class="about-hero">
+  <div class="container about-grid">
+    <div>
+      <p class="eyebrow">About us</p>
+      <h1>A library that stays open</h1>
+      <p class="lede">Online Library is a digital reading room for students, researchers, and anyone who still believes a book can change an afternoon.</p>
+    </div>
+    <figure>
+      <img src="{{ url_for('static', filename='images/reading-room.jpg') }}" width="1400" height="933" alt="A quiet reading room with a long oak table, burgundy chairs, a brass lamp, and tall bookshelves">
+    </figure>
+  </div>
+</section>
+<section class="section">
+  <div class="container prose-grid">
+    <article>
+      <h2>The promise</h2>
+      <p>We gather public-domain literature, open educational texts, and a carefully described catalogue so a reader in Abuja — or anywhere else — can search, read, and keep what is free to keep. The shelves do not close at dusk.</p>
+      <p>This is an independent project. It is not the National Library of Nigeria, and it is not a university library, though it is built for the kind of questions university students ask.</p>
+      <h2>The collection</h2>
+      <p>Eight disciplines organise the room: Education, Science, Technology, Literature, History, Religion, Computer Science, and Library and Information Science. Classic novels and poems are opening chapters of public-domain works, with a link to the complete text at Project Gutenberg. Study texts signed by the Curriculum Desk are original, and they are complete as published here.</p>
+      <p>We do not offer downloads of works still in copyright. A catalogue record may describe such a book. It will not pretend to be the book.</p>
+    </article>
+    <aside class="aside-card">
+      <h2>How to use the room</h2>
+      <ol>
+        <li>Search by title, author, or category.</li>
+        <li>Open a title and read the first chapter as a guest.</li>
+        <li>Create a free student account to continue, bookmark, and download legal texts.</li>
+        <li>Curators add and retire titles from the desk.</li>
+      </ol>
+      <h2>Correspondence</h2>
+      <p>Digital Reading Room<br>Wuse II, Abuja, FCT<br>Nigeria</p>
+      <p><a href="{{ url_for('contact') }}">Write to the desk</a></p>
+    </aside>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Online Library{% endblock %}</title>
+  <meta name="description" content="{% block description %}Online Library is a digital reading room. Unlimited access to thousands of books — search, read, bookmark, and download works that are free to keep.{% endblock %}">
+  <meta name="theme-color" content="#F8F1E3">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+  <link rel="canonical" href="{{ request.base_url }}">
+  <meta property="og:title" content="{{ self.title() }}">
+  <meta property="og:description" content="Unlimited Access to Thousands of Books.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Outfit:wght@300;400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=4">
+  <meta name="csrf" content="{{ csrf }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="{{ url_for('home') }}">
+        <span class="monogram" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M5 10c3.2-1.2 5.6-.8 8 .6v13.2c-2.5-1.2-5-1.4-8 .2V10zM19 10.6c2.4-1.4 4.8-1.6 8-.6v13.4c-3.2-1.4-5.6-1.2-8 0V10.6z"/><path d="M16 10.2v13.4" stroke="currentColor" fill="none"/></svg>
+        </span>
+        <span class="brand-text">
+          <strong>Online Library</strong>
+          <small>Digital reading room</small>
+        </span>
+      </a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle>
+        <span class="sr-only">Menu</span>
+        <span></span><span></span>
+      </button>
+      <nav class="site-nav" id="site-nav" data-menu>
+        <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">Home</a>
+        <a class="nav-link {% if request.endpoint in ('books', 'book_detail', 'read') %}active{% endif %}" href="{{ url_for('books') }}">All Books</a>
+        <a class="nav-link {% if request.endpoint in ('categories_page', 'category') %}active{% endif %}" href="{{ url_for('categories_page') }}">Categories</a>
+        <a class="nav-link {% if request.endpoint == 'about' %}active{% endif %}" href="{{ url_for('about') }}">About Us</a>
+        <a class="nav-link {% if request.endpoint == 'contact' %}active{% endif %}" href="{{ url_for('contact') }}">Contact Us</a>
+        <div class="nav-actions">
+          <button class="icon-btn" type="button" data-search-open aria-label="Search books">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16.5 20 20.5"/></svg>
+          </button>
+          {% if current_user %}
+          <a class="nav-link" href="{{ url_for('account') }}">My Shelf</a>
+          {% if current_user.role == 'admin' %}
+          <a class="nav-link" href="{{ url_for('admin') }}">Desk</a>
+          {% endif %}
+          <form method="post" action="{{ url_for('logout') }}">
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+            <button class="btn btn-small btn-ghost" type="submit">Log out</button>
+          </form>
+          {% else %}
+          <a class="btn btn-small btn-primary" href="{{ url_for('login') }}">Login / Register</a>
+          {% endif %}
+        </div>
+      </nav>
+    </div>
+  </header>
+  <div class="search-overlay" data-search-overlay hidden>
+    <button class="overlay-close" type="button" data-search-close aria-label="Close search">Close</button>
+    <form class="overlay-search" action="{{ url_for('books') }}" method="get" role="search">
+      <label class="sr-only" for="overlay-q">Search by title, author, or category</label>
+      <input id="overlay-q" name="q" type="search" placeholder="Search by title, author, or category" data-suggest autocomplete="off">
+      <button class="search-go" type="submit" aria-label="Search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16.5 20 20.5"/></svg>
+      </button>
+      <div class="suggest" data-suggest-list hidden></div>
+    </form>
+  </div>
+  <main id="content">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <p class="footer-brand">Online Library</p>
+        <p>Unlimited Access to Thousands of Books.</p>
+      </div>
+      <div>
+        <p class="footer-label">Explore</p>
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('books') }}">All Books</a>
+        <a href="{{ url_for('categories_page') }}">Categories</a>
+        <a href="{{ url_for('about') }}">About Us</a>
+        <a href="{{ url_for('contact') }}">Contact Us</a>
+      </div>
+      <div>
+        <p class="footer-label">Readers</p>
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+        <a href="{{ url_for('account') }}">My Shelf</a>
+        {% if current_user and current_user.role == 'admin' %}
+        <a href="{{ url_for('admin') }}">Curator’s desk</a>
+        {% endif %}
+      </div>
+      <div>
+        <p class="footer-label">Collection</p>
+        <p>Full downloads are offered only for public-domain excerpts and original open educational texts.</p>
+      </div>
+    </div>
+    <div class="container footer-base">
+      <p>© {{ year }} Online Library · Abuja. An independent digital reading room, not affiliated with the National Library of Nigeria.</p>
+    </div>
+  </footer>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="toasts" aria-live="polite">
+    {% for category, message in messages %}
+    <div class="toast toast-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+  <script src="{{ url_for('static', filename='js/main.js') }}?v=3"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

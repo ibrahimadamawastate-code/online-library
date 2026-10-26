@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% from "macros.html" import book_card %}
+{% block title %}{{ heading }} — Online Library{% endblock %}
+{% block description %}{{ lede }} Browse the Online Library catalogue.{% endblock %}
+{% block content %}
+<section class="mast">
+  <div class="container">
+    <p class="eyebrow">Catalogue</p>
+    <h1>{{ heading }}</h1>
+    <p class="lede">{{ lede }}</p>
+    <form class="filter-bar" method="get" action="{{ request.path }}">
+      {% if category %}<input type="hidden" name="category" value="{{ category }}">{% endif %}
+      <label class="sr-only" for="books-q">Search</label>
+      <input id="books-q" name="q" type="search" value="{{ q }}" placeholder="Search by title, author, or category" data-suggest>
+      <div class="suggest suggest-inline" data-suggest-list hidden></div>
+      <label class="sr-only" for="sort">Sort</label>
+      <select id="sort" name="sort" onchange="this.form.submit()">
+        <option value="title" {% if sort == 'title' %}selected{% endif %}>Title</option>
+        <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Recently added</option>
+        <option value="year" {% if sort == 'year' %}selected{% endif %}>Year</option>
+        <option value="popular" {% if sort == 'popular' %}selected{% endif %}>Most opened</option>
+      </select>
+      <input type="hidden" name="view" value="{{ view }}">
+      <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+    <div class="toolbar">
+      <p>{{ total }} title{% if total != 1 %}s{% endif %}{% if q %} for “{{ q }}”{% endif %}</p>
+      <div class="view-toggle" role="group" aria-label="View">
+        <a class="{% if view != 'shelf' %}is-on{% endif %}" href="{{ url_for(request.endpoint, slug=request.view_args.get('slug'), q=q, sort=sort, category=category, view='grid') }}">Cards</a>
+        <a class="{% if view == 'shelf' %}is-on{% endif %}" href="{{ url_for(request.endpoint, slug=request.view_args.get('slug'), q=q, sort=sort, category=category, view='shelf') }}">Shelf</a>
+      </div>
+    </div>
+    <div class="pills" aria-label="Filter by category">
+      <a class="{% if not category %}is-on{% endif %}" href="{{ url_for('books', q=q, sort=sort, view=view) }}">All</a>
+      {% for item in categories %}
+      <a class="{% if category == item.name %}is-on{% endif %}" href="{{ url_for('category', slug=item.slug, q=q, sort=sort, view=view) }}">{{ item.name }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    {% if total == 0 %}
+    <div class="empty">
+      <h2>Nothing on this shelf</h2>
+      <p>Try a shorter title, an author’s surname, or a category such as Literature.</p>
+      <a class="btn btn-primary" href="{{ url_for('books') }}">Clear the search</a>
+    </div>
+    {% elif view == 'shelf' %}
+    <div class="stack-view">
+      {% for name, items in grouped %}
+      <div class="stack-row">
+        <h2>{{ name }}</h2>
+        <div class="stack-books">
+          {% for book in items %}
+          <a class="spine pat-{{ loop.index0 % 4 }}" href="{{ url_for('book_detail', book_id=book.id) }}" style="--bg: {{ book.cover_bg }}; --fg: {{ book.cover_fg }}; --accent: {{ book.cover_accent }}; --h: {{ 148 + (loop.index0 % 5) * 10 }}px; --lean: {{ [-2, 0, 0, 3, 0, -4, 0][loop.index0 % 7] }}deg" title="{{ book.title }} — {{ book.author }}">
+            <span>{{ book.short_title or book.title }}</span>
+          </a>
+          {% endfor %}
+        </div>
+        <div class="plank"></div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card-grid">
+      {% for book in books %}
+      {{ book_card(book, saved=book.id in saved) }}
+      {% endfor %}
+    </div>
+    {% if pages > 1 %}
+    <nav class="pager" aria-label="Pages">
+      {% for n in range(1, pages + 1) %}
+      <a class="{% if n == page %}is-on{% endif %}" href="{{ url_for(request.endpoint, slug=request.view_args.get('slug'), q=q, sort=sort, category=category, view=view, page=n) }}">{{ n }}</a>
+      {% endfor %}
+    </nav>
+    {% endif %}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

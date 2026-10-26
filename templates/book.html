@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% from "macros.html" import cover, book_card %}
+{% block title %}{{ book.title }} by {{ book.author }} — Online Library{% endblock %}
+{% block description %}{{ book.description }}{% endblock %}
+{% block head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Book",
+  "name": {{ book.title|tojson }},
+  "author": {"@type": "Person", "name": {{ book.author|tojson }}},
+  "datePublished": "{{ book.year }}",
+  "inLanguage": "en",
+  "bookFormat": "https://schema.org/EBook"
+}
+</script>
+{% endblock %}
+{% block content %}
+<article class="detail">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="{{ url_for('home') }}">Home</a>
+      <span aria-hidden="true">/</span>
+      <a href="{{ url_for('category', slug=category_slug) }}">{{ book.category }}</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{{ book.title }}</span>
+    </nav>
+    <div class="detail-grid">
+      <div class="detail-cover">{{ cover(book) }}</div>
+      <div class="detail-copy">
+        <p class="eyebrow">{{ book.category }} · {{ book.call_number }}</p>
+        <h1>{{ book.title }}</h1>
+        <p class="byline">{{ book.author }}</p>
+        <dl class="facts">
+          <div><dt>Year</dt><dd>{{ book.year }}</dd></div>
+          <div><dt>Publisher</dt><dd>{{ book.publisher }}</dd></div>
+          <div><dt>Pages</dt><dd>{{ book.pages }}</dd></div>
+          <div><dt>Language</dt><dd>{{ book.language }}</dd></div>
+          <div><dt>This edition</dt><dd>{{ chapters|length }} chapter{% if chapters|length != 1 %}s{% endif %} · about {{ minutes }} min</dd></div>
+          <div><dt>Opened</dt><dd>{{ book.reads }} times</dd></div>
+        </dl>
+        <p class="description">{{ book.description }}</p>
+        <p class="source-note">{{ book.source_note }}</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="{{ url_for('read', book_id=book.id) }}">Read Online</a>
+          {% if current_user %}
+          <form method="post" action="{{ url_for('bookmark', book_id=book.id) }}" data-bookmark>
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+            <button class="btn btn-ghost" type="submit" data-bookmark-btn>{{ "Saved" if saved else "Bookmark" }}</button>
+          </form>
+          {% if book.downloadable %}
+          <a class="btn btn-ghost" href="{{ url_for('download', book_id=book.id) }}">{{ "Download excerpt" if book.gutenberg_id else "Download PDF" }}</a>
+          {% else %}
+          <span class="btn btn-ghost is-disabled">In the reading room only</span>
+          {% endif %}
+          {% else %}
+          <a class="btn btn-ghost" href="{{ url_for('login', next=request.path) }}">Log in to save or download</a>
+          {% endif %}
+        </div>
+        {% if book.gutenberg_id %}
+        <p class="external"><a href="https://www.gutenberg.org/ebooks/{{ book.gutenberg_id }}" rel="noopener noreferrer">Complete public-domain text at Project Gutenberg</a></p>
+        {% endif %}
+        {% if progress %}
+        <p class="continue-note"><a href="{{ url_for('read', book_id=book.id, chapter=progress.chapter_pos) }}">Continue reading · chapter {{ progress.chapter_pos }}</a></p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</article>
+{% if related %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Nearby on the shelf</p>
+        <h2>More in {{ book.category }}</h2>
+      </div>
+    </div>
+    <div class="card-grid">
+      {% for item in related %}
+      {{ book_card(item) }}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

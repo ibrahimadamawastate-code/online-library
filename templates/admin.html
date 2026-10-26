@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Curator’s desk — Online Library{% endblock %}
+{% block content %}
+<section class="mast">
+  <div class="container">
+    <p class="eyebrow">Administration</p>
+    <h1>Curator’s desk</h1>
+    <p class="lede">Manage titles, readers, and notes left at the door.</p>
+    <p><a class="btn btn-primary" href="{{ url_for('admin_new_book') }}">Add a title</a></p>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="stat-grid">
+      <article><strong>{{ stats.books }}</strong><span>Titles</span></article>
+      <article><strong>{{ stats.users }}</strong><span>Accounts</span></article>
+      <article><strong>{{ stats.bookmarks }}</strong><span>Bookmarks</span></article>
+      <article><strong>{{ stats.messages }}</strong><span>Messages</span></article>
+      <article><strong>{{ stats.reads }}</strong><span>Opens</span></article>
+      <article><strong>{{ stats.downloads }}</strong><span>Downloads</span></article>
+    </div>
+    <h2>Catalogue</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Title</th><th>Author</th><th>Category</th><th>Year</th><th></th></tr></thead>
+        <tbody>
+          {% for book in books %}
+          <tr>
+            <td><a href="{{ url_for('book_detail', book_id=book.id) }}">{{ book.title }}</a></td>
+            <td>{{ book.author }}</td>
+            <td>{{ book.category }}</td>
+            <td>{{ book.year }}</td>
+            <td class="row-actions">
+              <a href="{{ url_for('admin_edit_book', book_id=book.id) }}">Edit</a>
+              <form method="post" action="{{ url_for('admin_delete_book', book_id=book.id) }}" onsubmit="return confirm('Remove this title from the catalogue?')">
+                <input type="hidden" name="csrf" value="{{ csrf }}">
+                <button type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <h2>Readers</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Faculty</th><th>Role</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          {% for person in users %}
+          <tr>
+            <td>{{ person.name }}</td>
+            <td>{{ person.email }}</td>
+            <td>{{ person.faculty }}</td>
+            <td>{{ person.role }}</td>
+            <td>{{ "Active" if person.active else "Paused" }}</td>
+            <td>
+              {% if person.id != current_user.id %}
+              <form method="post" action="{{ url_for('admin_toggle_user', user_id=person.id) }}">
+                <input type="hidden" name="csrf" value="{{ csrf }}">
+                <button type="submit">{{ "Pause" if person.active else "Restore" }}</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <h2>Messages</h2>
+    {% for note in messages %}
+    <article class="message">
+      <header><strong>{{ note.subject }}</strong><span>{{ note.name }} · {{ note.email }}</span></header>
+      <p>{{ note.body }}</p>
+    </article>
+    {% else %}
+    <p>No notes yet.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

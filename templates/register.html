@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Register — Online Library{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block content %}
+<section class="auth">
+  <div class="auth-visual" style="background-image: url('{{ url_for('static', filename='images/reading-room.jpg') }}')">
+    <blockquote>
+      <p>Bring a name, an email, and the subject you are studying. The shelf will keep the rest.</p>
+      <footer>Student registration</footer>
+    </blockquote>
+  </div>
+  <div class="auth-panel">
+    <p class="eyebrow">New readers</p>
+    <h1>Register</h1>
+    <p class="lede">Already have an account? <a href="{{ url_for('login') }}">Login</a>.</p>
+    <form class="stack-form" method="post">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <label for="name">Full name</label>
+      <input id="name" name="name" required autocomplete="name">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required autocomplete="email">
+      <label for="student_id">Student ID <span>(optional)</span></label>
+      <input id="student_id" name="student_id" autocomplete="off">
+      <label for="faculty">Faculty</label>
+      <select id="faculty" name="faculty" required>
+        <option value="">Choose a discipline</option>
+        {% for item in categories %}
+        <option>{{ item.name }}</option>
+        {% endfor %}
+        <option>Other</option>
+      </select>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" required minlength="8" autocomplete="new-password">
+      <label for="confirm">Confirm password</label>
+      <input id="confirm" name="confirm" type="password" required minlength="8" autocomplete="new-password">
+      <label class="check"><input type="checkbox" name="terms" required> I agree to use downloads only as the collection policy allows.</label>
+      <button class="btn btn-primary" type="submit">Create my shelf</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

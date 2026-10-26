@@ -1,0 +1,76 @@
+{% macro cover(book, label=true) %}
+{% set lines = book.title|title_lines(15 if book.cover_layout == 'split' else 17) %}
+{% set size = lines|title_size %}
+<svg class="cover-svg layout-{{ book.cover_layout or 'classic' }}" viewBox="0 0 300 450" role="img" aria-label="{{ book.title }} by {{ book.author }}">
+  <rect width="300" height="450" fill="{{ book.cover_bg }}"/>
+  <rect width="300" height="450" fill="url(#sheen-{{ book.id }})"/>
+  <defs>
+    <linearGradient id="sheen-{{ book.id }}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.16"/>
+      <stop offset="0.45" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.22"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="10" height="450" fill="#000" opacity="0.2"/>
+  {% if book.cover_layout == 'band' %}
+  <rect x="0" y="0" width="300" height="92" fill="{{ book.cover_accent }}" opacity="0.28"/>
+  {% endif %}
+  {% if book.cover_layout == 'split' %}
+  <rect x="0" y="0" width="16" height="450" fill="{{ book.cover_accent }}"/>
+  {% else %}
+  <rect x="18" y="18" width="264" height="414" fill="none" stroke="{{ book.cover_accent }}" stroke-width="1.4"/>
+  <rect x="24" y="24" width="252" height="402" fill="none" stroke="{{ book.cover_accent }}" stroke-width="0.6" opacity="0.8"/>
+  {% endif %}
+  <g fill="{{ book.cover_accent }}" {% if book.cover_layout == 'split' %}transform="translate(28,0)"{% endif %}>
+    <circle cx="138" cy="108" r="2.2"/>
+    <circle cx="150" cy="108" r="3.1"/>
+    <circle cx="162" cy="108" r="2.2"/>
+  </g>
+  <text x="{{ 40 if book.cover_layout == 'split' else 150 }}" y="64" text-anchor="{{ 'start' if book.cover_layout == 'split' else 'middle' }}" fill="{{ book.cover_fg }}" font-size="11" letter-spacing="2.4" font-family="Outfit, Georgia, sans-serif">{{ book.category|upper }}</text>
+  {% set start = 250 - ((lines|length * size * 1.12) / 2) %}
+  <text x="{{ 40 if book.cover_layout == 'split' else 150 }}" y="{{ start }}" text-anchor="{{ 'start' if book.cover_layout == 'split' else 'middle' }}" fill="{{ book.cover_fg }}" font-size="{{ size }}" font-family="Cormorant Garamond, Georgia, serif">
+    {% for line in lines %}
+    <tspan x="{{ 40 if book.cover_layout == 'split' else 150 }}" dy="{{ size if loop.first else size * 1.12 }}">{{ line }}</tspan>
+    {% endfor %}
+  </text>
+  <text x="{{ 40 if book.cover_layout == 'split' else 150 }}" y="392" text-anchor="{{ 'start' if book.cover_layout == 'split' else 'middle' }}" fill="{{ book.cover_accent }}" font-size="13" letter-spacing="1.4" font-family="Outfit, Georgia, sans-serif">{{ (book.cover_author or book.author)|upper }}</text>
+  <text x="{{ 40 if book.cover_layout == 'split' else 150 }}" y="416" text-anchor="{{ 'start' if book.cover_layout == 'split' else 'middle' }}" fill="{{ book.cover_fg }}" font-size="12" opacity="0.8" font-family="Outfit, Georgia, sans-serif">{{ book.year }}</text>
+</svg>
+{% endmacro %}
+
+{% macro book_card(book, saved=false, fresh=false) %}
+<article class="card">
+  <a class="card-cover" href="{{ url_for('book_detail', book_id=book.id) }}">
+    {% if fresh %}<span class="ribbon">New</span>{% endif %}
+    {% if saved %}<span class="saved-mark">On your shelf</span>{% endif %}
+    {{ cover(book) }}
+  </a>
+  <div class="card-meta">
+    <p class="card-cat">{{ book.category }}</p>
+    <h3><a href="{{ url_for('book_detail', book_id=book.id) }}">{{ book.title }}</a></h3>
+    <p class="card-by">{{ book.author }} <span>·</span> {{ book.year }}</p>
+  </div>
+</article>
+{% endmacro %}
+
+{% macro icon(name) %}
+<svg class="icon" viewBox="0 0 32 32" aria-hidden="true">
+  {% if name == 'education' %}
+  <path d="M4 13 16 7l12 6-12 6L4 13z"/><path d="M8 16.5v5.2c2.4 1.8 5 2.6 8 2.6s5.6-.8 8-2.6v-5.2"/>
+  {% elif name == 'science' %}
+  <circle cx="16" cy="16" r="4"/><path d="M16 4v4M16 24v4M4 16h4M24 16h4M7.5 7.5l2.8 2.8M21.7 21.7l2.8 2.8M24.5 7.5l-2.8 2.8M10.3 21.7l-2.8 2.8"/>
+  {% elif name == 'technology' %}
+  <rect x="6" y="8" width="20" height="13" rx="1.5"/><path d="M12 25h8M16 21v4"/>
+  {% elif name == 'literature' %}
+  <path d="M7 7.5c3-.8 5.4-.6 7.5.6v16c-2.2-1-4.6-1.2-7.5.1V7.5zM17.5 8.1c2.1-1.2 4.5-1.4 7.5-.6v16.2c-3-1.3-5.4-1.2-7.5-.1V8.1z"/>
+  {% elif name == 'history' %}
+  <circle cx="16" cy="16" r="9"/><path d="M16 11v6l4 2"/>
+  {% elif name == 'religion' %}
+  <path d="M16 7c2.2 2.4 4 4.2 4 6.4a4 4 0 1 1-8 0C12 11.2 13.8 9.4 16 7z"/><path d="M11 22h10M16 18v6"/>
+  {% elif name == 'computer-science' %}
+  <rect x="5" y="6" width="22" height="16" rx="1.5"/><path d="M11 24h10M12 13l-2 2 2 2M20 13l2 2-2 2M14.5 17.5l3-6"/>
+  {% else %}
+  <path d="M6 8h8v16H6zM14 8h12v16H14z"/><path d="M9 12h2M17 12h6M17 16h6M17 20h4"/>
+  {% endif %}
+</svg>
+{% endmacro %}

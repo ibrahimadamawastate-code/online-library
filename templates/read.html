@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }} — Reading{% endblock %}
+{% block body_class %}reader-page{% endblock %}
+{% block content %}
+<div class="reader" data-book="{{ book.id }}" data-chapter="{{ position }}" data-logged-in="{{ 1 if current_user else 0 }}">
+  <header class="reader-bar">
+    <a href="{{ url_for('book_detail', book_id=book.id) }}">← {{ book.title }}</a>
+    <div class="reader-tools">
+      <button type="button" data-font="-1" aria-label="Smaller text">A−</button>
+      <button type="button" data-font="1" aria-label="Larger text">A+</button>
+      <button type="button" data-theme="cream" aria-label="Cream theme">Cream</button>
+      <button type="button" data-theme="sepia" aria-label="Sepia theme">Sepia</button>
+      <button type="button" data-theme="night" aria-label="Night theme">Night</button>
+      {% if current_user %}
+      <form method="post" action="{{ url_for('bookmark', book_id=book.id) }}">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <button type="submit">{{ "Saved" if saved else "Bookmark" }}</button>
+      </form>
+      {% if book.downloadable %}
+      <a href="{{ url_for('download', book_id=book.id) }}">Download</a>
+      {% endif %}
+      {% endif %}
+    </div>
+  </header>
+  <div class="reader-layout">
+    <aside class="reader-chapters">
+      <p>Contents</p>
+      <ol>
+        {% for item in chapters %}
+        <li>
+          {% if current_user or loop.index == 1 %}
+          <a class="{% if item.position == position %}is-on{% endif %}" href="{{ url_for('read', book_id=book.id, chapter=item.position) }}">{{ item.title }}</a>
+          {% else %}
+          <span class="locked">{{ item.title }}</span>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ol>
+    </aside>
+    <article class="reader-article" data-format="{{ book.text_format }}">
+      <p class="eyebrow">{{ book.author }}</p>
+      <h1>{{ chapter.title }}</h1>
+      {% if book.text_format == 'verse' %}
+      <div class="verse">
+        {% for line in chapter.content.splitlines() %}
+          {% if line.strip() %}
+          <span>{{ line }}</span>
+          {% else %}
+          <span class="verse-gap"></span>
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% else %}
+      {% for para in chapter.content.split('\n\n') %}
+        {% if para.startswith('[code]') %}
+        <pre class="code"><code>{{ para[6:].replace('[/code]', '').strip() }}</code></pre>
+        {% elif para.strip() %}
+        <p>{{ para }}</p>
+        {% endif %}
+      {% endfor %}
+      {% endif %}
+      <footer class="reader-end">
+        {% if position > 1 %}
+        <a class="btn btn-ghost" href="{{ url_for('read', book_id=book.id, chapter=position-1) }}">Previous</a>
+        {% endif %}
+        {% if position < chapters|length %}
+          {% if current_user %}
+          <a class="btn btn-primary" href="{{ url_for('read', book_id=book.id, chapter=position+1) }}">Next chapter</a>
+          {% else %}
+          <a class="btn btn-primary" href="{{ url_for('register', next=url_for('read', book_id=book.id, chapter=position+1)) }}">Create a free account to continue</a>
+          {% endif %}
+        {% else %}
+        <p>You have reached the end of this reading-room edition.</p>
+        {% endif %}
+      </footer>
+      {% if gated %}
+      <div class="gate">
+        <h2>The rest of the book waits behind a free shelf</h2>
+        <p>Guests may read the opening chapter. Register to continue, bookmark, and download what is legally yours to keep.</p>
+        <a class="btn btn-primary" href="{{ url_for('register') }}">Register</a>
+        <a class="btn btn-ghost" href="{{ url_for('login', next=request.path) }}">Login</a>
+      </div>
+      {% endif %}
+    </article>
+  </div>
+  <div class="progress-line" data-progress-bar></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/reader.js') }}?v=3"></script>
+{% endblock %}

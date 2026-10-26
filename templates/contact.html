@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Contact Us — Online Library{% endblock %}
+{% block description %}Write to the Online Library reading room in Abuja. Messages are kept for the curator’s desk.{% endblock %}
+{% block content %}
+<section class="mast">
+  <div class="container narrow">
+    <p class="eyebrow">Contact us</p>
+    <h1>Write to the desk</h1>
+    <p class="lede">Questions about a title, a missing chapter, or a student account all come here. Messages are stored for the curator. This demonstration does not forward mail to an outside inbox.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container contact-grid">
+    <form class="form-card" method="post">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <label for="name">Name</label>
+      <input id="name" name="name" required autocomplete="name">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required autocomplete="email">
+      <label for="subject">Subject</label>
+      <input id="subject" name="subject" required>
+      <label for="body">Message</label>
+      <textarea id="body" name="body" required></textarea>
+      <button class="btn btn-primary" type="submit">Send the note</button>
+    </form>
+    <aside class="aside-card">
+      <h2>Reading room</h2>
+      <p>Digital Reading Room<br>Wuse II, Abuja, FCT<br>Nigeria</p>
+      <p>The shelves are open every hour. Notes are read on weekdays.</p>
+      <p>hello@onlinelibrary.ng</p>
+    </aside>
+  </div>
+</section>
+{% endblock %}

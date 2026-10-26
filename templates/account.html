@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "macros.html" import book_card %}
+{% block title %}My Shelf — Online Library{% endblock %}
+{% block content %}
+<section class="mast">
+  <div class="container">
+    <p class="eyebrow">{{ current_user.faculty or "Reader" }}</p>
+    <h1>{{ current_user.name.split()[0] }}’s shelf</h1>
+    <p class="lede">{{ current_user.email }}{% if current_user.student_id %} · {{ current_user.student_id }}{% endif %}</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    {% if continue_rows %}
+    <div class="section-head"><div><p class="eyebrow">In progress</p><h2>Continue reading</h2></div></div>
+    <div class="continue-list">
+      {% for book in continue_rows %}
+      <a href="{{ url_for('read', book_id=book.id, chapter=book.chapter_pos) }}">
+        <strong>{{ book.title }}</strong>
+        <span>Chapter {{ book.chapter_pos }} · {{ book.percent }}%</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="section-head"><div><p class="eyebrow">Saved</p><h2>Bookmarks</h2></div></div>
+    {% if saved %}
+    <div class="card-grid">
+      {% for book in saved %}
+      {{ book_card(book, saved=true) }}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+      <h2>Your shelf is still quiet</h2>
+      <p>Open a title and press Bookmark. It will wait here.</p>
+      <a class="btn btn-primary" href="{{ url_for('books') }}">Browse all books</a>
+    </div>
+    {% endif %}
+    {% if recommended %}
+    <div class="section-head later"><div><p class="eyebrow">For your faculty</p><h2>Suggested next</h2></div></div>
+    <div class="card-grid">
+      {% for book in recommended %}
+      {{ book_card(book) }}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

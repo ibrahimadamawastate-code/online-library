@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Login — Online Library{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block content %}
+<section class="auth">
+  <div class="auth-visual" style="background-image: url('{{ url_for('static', filename='images/reading-room.jpg') }}')">
+    <blockquote>
+      <p>A library is a quiet promise that knowledge will wait for you.</p>
+      <footer>Online Library reading room</footer>
+    </blockquote>
+  </div>
+  <div class="auth-panel">
+    <p class="eyebrow">Readers</p>
+    <h1>Login</h1>
+    <p class="lede">Return to your shelf, or <a href="{{ url_for('register') }}">register</a> if this is your first visit.</p>
+    <form class="stack-form" method="post">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <input type="hidden" name="next" value="{{ next_url }}">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required autocomplete="username">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" required autocomplete="current-password">
+      <label class="check"><input type="checkbox" name="remember"> Remember this browser</label>
+      <button class="btn btn-primary" type="submit">Enter the reading room</button>
+    </form>
+    <div class="demo-card">
+      <p>Demonstration access</p>
+      <dl>
+        <div><dt>Curator</dt><dd>curator@onlinelibrary.ng<br>Library#2026</dd></div>
+        <div><dt>Student</dt><dd>amina.bala@student.ng<br>Reader#2026</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+{% endblock %}
